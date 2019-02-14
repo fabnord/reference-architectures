@@ -182,12 +182,12 @@ configuration CreateJoinFarm
         {
             Ensure = "Present"
             DatabaseServer = $SqlAlwaysOnEndpointName
-            FarmConfigDatabaseName = "SP_Config_2016"
+            FarmConfigDatabaseName = "SP_Config_2019"
             Passphrase = $Passphrase
             FarmAccount = $FarmAccountCreds
             PsDscRunAsCredential = $SPSetupAccount
             AdminContentDatabaseName = "SP_AdminContent"
-            CentralAdministrationPort = "2016"
+            CentralAdministrationPort = "2019"
             RunCentralAdmin = $runCentralAdmin
             ServerRole = $ServerRole
             DependsOn = @("[xADUser]CreateFarmAccount", "[xADUser]ServicePoolManagedAccount", "[xADUser]WebPoolManagedAccount")
@@ -275,7 +275,7 @@ configuration CreateJoinFarm
         SPUsageApplication UsageApplication
         {
             Name = "Usage Service Application"
-            DatabaseName = "SP2016_Usage"
+            DatabaseName = "SP2019_Usage"
             UsageLogCutTime = 5
             UsageLogLocation = "F:\UsageLogs"
             UsageLogMaxFileSizeKB = 1024
@@ -286,7 +286,7 @@ configuration CreateJoinFarm
         SPStateServiceApp StateServiceApp
         {
             Name = "State Service Application"
-            DatabaseName = "SP2016_State"
+            DatabaseName = "SP2019_State"
             PsDscRunAsCredential = $SPSetupAccount
             DependsOn = @("[SPFarm]CreateSPFarm", "[SPManagedAccount]WebPoolManagedAccount")
         }
@@ -328,7 +328,7 @@ configuration CreateJoinFarm
                 ApplicationPoolAccount = $WebPoolManagedAccountCreds.UserName
                 AllowAnonymous = $false
                 # AuthenticationMethod = "NTLM"
-                DatabaseName = "SP2016_Sites_Content"
+                DatabaseName = "SP2019_Sites_Content"
                 Url = "http://Portal.$DomainFQDNName"
                 Port = 80
                 PsDscRunAsCredential = $SPSetupAccount
@@ -342,7 +342,7 @@ configuration CreateJoinFarm
                 ApplicationPoolAccount = $WebPoolManagedAccountCreds.UserName
                 AllowAnonymous = $false
                 # AuthenticationMethod = "NTLM"
-                DatabaseName = "SP2016_Sites_OneDrive"
+                DatabaseName = "SP2019_Sites_OneDrive"
                 HostHeader = "OneDrive.$DomainFQDNName"
                 Url = "http://OneDrive.$DomainFQDNName"
                 Port = 80
@@ -450,7 +450,7 @@ configuration CreateJoinFarm
             {
                 Name = "App Management Service Application"
                 ApplicationPool = $serviceAppPoolName
-                DatabaseName = "SP2016_AppManagement"
+                DatabaseName = "SP2019_AppManagement"
                 PsDscRunAsCredential = $SPSetupAccount
                 DependsOn = '[SPServiceAppPool]MainServiceAppPool'      
             }
@@ -459,7 +459,7 @@ configuration CreateJoinFarm
             {
                 Name = "Subscription Settings Service Application"
                 ApplicationPool = $serviceAppPoolName
-                DatabaseName = "SP2016_SubscriptionSettings"
+                DatabaseName = "SP2019_SubscriptionSettings"
                 PsDscRunAsCredential = $SPSetupAccount
                 DependsOn = '[SPServiceAppPool]MainServiceAppPool'      
             }
@@ -469,7 +469,7 @@ configuration CreateJoinFarm
                 Name = "Managed Metadata Service Application"
                 PsDscRunAsCredential = $SPSetupAccount
                 ApplicationPool = $serviceAppPoolName
-                DatabaseName = "SP2016_MMS"
+                DatabaseName = "SP2019_MMS"
                 DependsOn = @('[SPServiceAppPool]MainServiceAppPool', '[SPServiceInstance]ManagedMetadataServiceInstance')
             }
             if ($ServerRole -eq "WebFrontEnd" -or $ServerRole -eq "SingleServerFarm" -or $ServerRole -eq "Custom" )
@@ -477,11 +477,11 @@ configuration CreateJoinFarm
                 SPUserProfileServiceApp UserProfileApp
                 {
                     Name = "User Profile Service Application"
-                    ProfileDBName = "SP2016_Profile"
+                    ProfileDBName = "SP2019_Profile"
                     ProfileDBServer = $SqlAlwaysOnEndpointName
-                    SocialDBName = "SP2016_Social"
+                    SocialDBName = "SP2019_Social"
                     SocialDBServer = $SqlAlwaysOnEndpointName
-                    SyncDBName = "SP2016_Sync"
+                    SyncDBName = "SP2019_Sync"
                     SyncDBServer = $SqlAlwaysOnEndpointName
                     MySiteHostLocation = "http://OneDrive.$DomainFQDNName"
                     # FarmAccount = $FarmAccountCreds

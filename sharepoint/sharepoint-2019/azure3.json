@@ -8,8 +8,8 @@
                     "type": "VirtualNetwork",
                     "settings":[
                         {
-                            "name": "ra-sp2016-vnet",
-                            "resourceGroupName": "ra-sp2016-network-rg",
+                            "name": "ra-sp2019-vnet",
+                            "resourceGroupName": "ra-sp2019-network-rg",
                             "addressPrefixes": [
                               "10.0.0.0/16"
                             ],
@@ -58,7 +58,7 @@
                 },
                 {
                     "type": "VirtualMachine",
-                    "resourceGroupName": "ra-sp2016-network-rg",
+                    "resourceGroupName": "ra-sp2019-network-rg",
                     "settings":[
                         {
                             "vmCount": 2,
@@ -69,8 +69,8 @@
                             "adminPassword": "AweS0me@PW",
                             "osType": "windows",
                             "virtualNetwork": {
-                                "name": "ra-sp2016-vnet",
-                                "resourceGroupName": "ra-sp2016-network-rg"
+                                "name": "ra-sp2019-vnet",
+                                "resourceGroupName": "ra-sp2019-network-rg"
                             },
                             "nics": [
                                 {
@@ -85,7 +85,7 @@
                             "imageReference": {
                                 "publisher": "MicrosoftSharePoint",
                                 "offer": "MicrosoftSharePointServer",
-                                "sku": "2016",
+                                "sku": "2019",
                                 "version": "latest"
                             },
                             "dataDisks": {
@@ -96,7 +96,7 @@
                 },
                 {
                     "type": "VirtualMachine",
-                    "resourceGroupName": "ra-sp2016-network-rg",
+                    "resourceGroupName": "ra-sp2019-network-rg",
                     "settings":[
                         {
                             "vmCount": 2,
@@ -107,8 +107,8 @@
                             "adminPassword": "AweS0me@PW",
                             "osType": "windows",
                             "virtualNetwork": {
-                                "name": "ra-sp2016-vnet",
-                                "resourceGroupName": "ra-sp2016-network-rg"
+                                "name": "ra-sp2019-vnet",
+                                "resourceGroupName": "ra-sp2019-network-rg"
                             },
                             "nics": [
                               {
@@ -126,7 +126,7 @@
                             "imageReference": {
                               "publisher": "MicrosoftSharePoint",
                               "offer": "MicrosoftSharePointServer",
-                              "sku": "2016",
+                              "sku": "2019",
                               "version": "latest"
                             },
                             "dataDisks": {
@@ -185,7 +185,7 @@
                 },
                 {
                     "type": "VirtualMachine",
-                    "resourceGroupName": "ra-sp2016-network-rg",
+                    "resourceGroupName": "ra-sp2019-network-rg",
                     "settings":[
                         {
                             "vmCount": 2,
@@ -196,8 +196,8 @@
                             "adminPassword": "AweS0me@PW",
                             "osType": "windows",
                             "virtualNetwork": {
-                                "name": "ra-sp2016-vnet",
-                                "resourceGroupName": "ra-sp2016-network-rg"                                                
+                                "name": "ra-sp2019-vnet",
+                                "resourceGroupName": "ra-sp2019-network-rg"                                                
                             },
                             "nics": [
                                 {
@@ -212,7 +212,7 @@
                             "imageReference": {
                                 "publisher": "MicrosoftSharePoint",
                                 "offer": "MicrosoftSharePointServer",
-                                "sku": "2016",
+                                "sku": "2019",
                                 "version": "latest"
                             },
                             "dataDisks": {
@@ -223,7 +223,7 @@
                 },
                 {
                     "type": "VirtualMachine",
-                    "resourceGroupName": "ra-sp2016-network-rg",
+                    "resourceGroupName": "ra-sp2019-network-rg",
                     "settings":[
                         {
                             "vmCount": 2,
@@ -234,8 +234,8 @@
                             "adminPassword": "AweS0me@PW",
                             "osType": "windows",
                             "virtualNetwork": {
-                                "name": "ra-sp2016-vnet",
-                                "resourceGroupName": "ra-sp2016-network-rg"
+                                "name": "ra-sp2019-vnet",
+                                "resourceGroupName": "ra-sp2019-network-rg"
                             },
                             "nics": [
                               {
@@ -250,7 +250,7 @@
                             "imageReference": {
                               "publisher": "MicrosoftSharePoint",
                               "offer": "MicrosoftSharePointServer",
-                              "sku": "2016",
+                              "sku": "2019",
                               "version": "latest"
                             },
                             "dataDisks": {

@@ -6,7 +6,7 @@
             "value": [
                 {
                     "type": "VirtualMachine",
-                    "resourceGroupName": "ra-sp2016-network-rg",
+                    "resourceGroupName": "ra-sp2019-network-rg",
                     "settings":[
                         {
                             "namePrefix": "ra-sp-jb",
@@ -16,8 +16,8 @@
                             "adminUsername": "testuser",
                             "adminPassword": "AweS0me@PW",
                             "virtualNetwork": {
-                                "name": "ra-sp2016-vnet",
-                                "resourceGroupName": "ra-sp2016-network-rg"                                                        
+                                "name": "ra-sp2019-vnet",
+                                "resourceGroupName": "ra-sp2019-network-rg"                                                        
                             },
                             "nics": [
                               {
@@ -37,7 +37,7 @@
                 },
                 {
                     "type": "VirtualMachine",
-                    "resourceGroupName": "ra-sp2016-network-rg",
+                    "resourceGroupName": "ra-sp2019-network-rg",
                     "settings":[
                         {
                             "vmCount": 2,
@@ -48,8 +48,8 @@
                             "adminUsername": "testuser",
                             "adminPassword": "AweS0me@PW",
                             "virtualNetwork": {
-                                "name": "ra-sp2016-vnet",
-                                "resourceGroupName": "ra-sp2016-network-rg"                                                        
+                                "name": "ra-sp2019-vnet",
+                                "resourceGroupName": "ra-sp2019-network-rg"                                                        
                             },
                             "nics": [
                               {
@@ -64,7 +64,7 @@
                             "imageReference": {
                               "publisher": "MicrosoftWindowsServer",
                               "offer": "WindowsServer",
-                              "sku": "2012-R2-Datacenter",
+                              "sku": "2016-Datacenter",
                               "version": "latest"
                             },
                             "dataDisks": {
@@ -75,7 +75,7 @@
                 },
                 {
                     "type": "VirtualMachineExtension",
-                    "resourceGroupName": "ra-sp2016-network-rg",
+                    "resourceGroupName": "ra-sp2019-network-rg",
                     "settings":[
                       {
                         "vms": [
@@ -90,7 +90,7 @@
                             "autoUpgradeMinorVersion": true,
                             "settings": {
                               "configuration": {
-                                "url": "https://github.com/mspnp/reference-architectures/raw/master/sharepoint/sharepoint-2016/adds.zip",
+                                "url": "https://github.com/fabnord/reference-architectures/raw/master/sharepoint/sharepoint-2019/adds.zip",
                                 "script":"adds-forest.ps1",
                                 "function": "CreateForest"
                               }
@@ -130,7 +130,7 @@
                             "autoUpgradeMinorVersion": true,
                             "settings": {
                               "configuration": {
-                                "url": "https://github.com/mspnp/reference-architectures/raw/master/sharepoint/sharepoint-2016/adds.zip",
+                                "url": "https://github.com/fabnord/reference-architectures/raw/master/sharepoint/sharepoint-2019/adds.zip",
                                 "script":"adds.ps1",
                                 "function": "CreateDomainController"
                               }
@@ -157,10 +157,10 @@
                 },
                 {
                     "type": "VirtualNetwork",
-                    "resourceGroupName": "ra-sp2016-network-rg",
+                    "resourceGroupName": "ra-sp2019-network-rg",
                     "settings":[
                         {
-                            "name": "ra-sp2016-vnet",
+                            "name": "ra-sp2019-vnet",
                             "addressPrefixes": [
                               "10.0.0.0/16"
                             ],
@@ -207,7 +207,7 @@
                 },               
                 {
                     "type": "VirtualMachine",
-                    "resourceGroupName": "ra-sp2016-network-rg",
+                    "resourceGroupName": "ra-sp2019-network-rg",
                     "settings":[
                         {
                             "vmCount": 2,
@@ -218,8 +218,8 @@
                             "adminUsername": "testuser",
                             "adminPassword": "AweS0me@PW",
                             "virtualNetwork": {
-                                "name": "ra-sp2016-vnet",
-                                "resourceGroupName": "ra-sp2016-network-rg"                                                        
+                                "name": "ra-sp2019-vnet",
+                                "resourceGroupName": "ra-sp2019-network-rg"                                                        
                             },
                             "nics": [
                               {
@@ -235,7 +235,7 @@
                             ],
                             "imageReference": {
                               "publisher": "MicrosoftSQLServer",
-                              "offer": "SQL2016-WS2012R2",
+                              "offer": "SQL2017-WS2016",
                               "sku": "Enterprise",
                               "version": "latest"
                             },
@@ -287,7 +287,7 @@
                 },
                 {
                     "type": "VirtualMachine",
-                    "resourceGroupName": "ra-sp2016-network-rg",
+                    "resourceGroupName": "ra-sp2019-network-rg",
                     "settings":[
                         {
                             "namePrefix": "ra-sp-fsw",
@@ -297,8 +297,8 @@
                             "adminUsername": "testuser",
                             "adminPassword": "AweS0me@PW",
                             "virtualNetwork": {
-                                "name": "ra-sp2016-vnet",
-                                "resourceGroupName": "ra-sp2016-network-rg"
+                                "name": "ra-sp2019-vnet",
+                                "resourceGroupName": "ra-sp2019-network-rg"
                             },
                             "nics": [
                               {
@@ -312,7 +312,7 @@
                             "imageReference": {
                               "publisher": "MicrosoftWindowsServer",
                               "offer": "WindowsServer",
-                              "sku": "2012-R2-Datacenter",
+                              "sku": "2016-Datacenter",
                               "version": "latest"
                             },
                             "dataDisks": {
@@ -327,7 +327,7 @@
                                 "autoUpgradeMinorVersion": true,
                                 "settings": {
                                   "configuration": {
-                                    "url": "https://raw.githubusercontent.com/mspnp/reference-architectures/master/sharepoint/sharepoint-2016/CreateFileShareWitness.ps1.zip",
+                                    "url": "https://github.com/fabnord/reference-architectures/raw/master/sharepoint/sharepoint-2019/CreateFileShareWitness.ps1.zip",
                                     "script": "CreateFileShareWitness.ps1",
                                     "function": "CreateFileShareWitness"
                                   }
@@ -349,7 +349,7 @@
                 },
                 {
                   "type": "VirtualMachineExtension",
-                  "resourceGroupName": "ra-sp2016-network-rg",
+                  "resourceGroupName": "ra-sp2019-network-rg",
                   "settings":[
                       {
                           "vms": [ "ra-sp-sql-vm1" ],
@@ -362,7 +362,7 @@
                               "autoUpgradeMinorVersion": true,
                               "settings": {
                                 "configuration":{
-                                  "url": "https://github.com/mspnp/reference-architectures/raw/master/sharepoint/sharepoint-2016/PrepareAlwaysOnSqlServer.zip",
+                                  "url": "https://github.com/fabnord/reference-architectures/raw/master/sharepoint/sharepoint-2019/PrepareAlwaysOnSqlServer.zip",
                                   "script": "PrepareAlwaysOnSqlServer.ps1",
                                   "function": "PrepareAlwaysOnSqlServer"
                                 }
@@ -370,7 +370,7 @@
                               "protectedSettings": {
                                 "configurationArguments": {
                                   "domainName": "contoso.local",
-                                  "AOEndpointName": "ra-sp2016-sql-hadr",
+                                  "AOEndpointName": "ra-sp2019-sql-hadr",
                                   "adminCreds": {
                                     "userName": "testuser",
                                     "password": "AweS0me@PW"

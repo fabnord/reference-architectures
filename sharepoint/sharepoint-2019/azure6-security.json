@@ -6,10 +6,10 @@
             "value": [
                 {
                     "type": "NetworkSecurityGroup",
-                    "resourceGroupName": "ra-sp2016-network-rg",
+                    "resourceGroupName": "ra-sp2019-network-rg",
                     "settings":[
                         {
-                            "name": "ra-sp2016-sql-nsg",
+                            "name": "ra-sp2019-sql-nsg",
                             "subnets": [
                               "sql"
                             ],
@@ -100,7 +100,7 @@
                             ]
                           },
                           {
-                            "name": "ra-sp2016-mgmt-nsg",
+                            "name": "ra-sp2019-mgmt-nsg",
                             "subnets": [ ],
                             "networkInterfaces": [
                               {

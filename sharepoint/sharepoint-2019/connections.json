@@ -6,10 +6,10 @@
             "value": [
                 {
                     "type": "VirtualNetwork",
-                    "resourceGroupName": "ra-sp2016-network-rg",
+                    "resourceGroupName": "ra-sp2019-network-rg",
                     "settings":[
                         {
-                            "name": "ra-sp2016-vnet",
+                            "name": "ra-sp2019-vnet",
                             "addressPrefixes": [
                               "10.0.0.0/16"
                             ],
@@ -60,26 +60,26 @@
                     "settings":[
                         {
                             "name": "ra-onprem-vpn-vgw",
-                            "resourceGroupName": "ra-onprem-sp2016-rg",
+                            "resourceGroupName": "ra-onprem-sp2019-rg",
                             "gatewayType": "Vpn",
                             "vpnType": "RouteBased",
                             "sku": "Basic",
                             "isPublic": true,
                             "virtualNetwork": {
                                 "name": "ra-onprem-vnet",
-                                "resourceGroupName": "ra-onprem-sp2016-rg"
+                                "resourceGroupName": "ra-onprem-sp2019-rg"
                             }
                         },
                         {
                             "name": "ra-adds-vpn-vgw",
-                            "resourceGroupName": "ra-sp2016-network-rg",
+                            "resourceGroupName": "ra-sp2019-network-rg",
                             "gatewayType": "Vpn",
                             "vpnType": "RouteBased",
                             "sku": "Basic",
                             "isPublic": true,
                             "virtualNetwork": {
-                                "name": "ra-sp2016-vnet",
-                                "resourceGroupName": "ra-sp2016-network-rg"
+                                "name": "ra-sp2019-vnet",
+                                "resourceGroupName": "ra-sp2019-network-rg"
                             }
                         }
                     ]
@@ -92,29 +92,29 @@
                             "connectionType": "Vnet2Vnet",
                             "sharedKey": "123secret",
                             "routingWeight": 100,
-                            "resourceGroupName": "ra-sp2016-network-rg",
+                            "resourceGroupName": "ra-sp2019-network-rg",
                             "virtualNetworkGateway1": {
                               "name": "ra-adds-vpn-vgw",
-                              "resourceGroupName": "ra-sp2016-network-rg"
+                              "resourceGroupName": "ra-sp2019-network-rg"
                             },
                             "virtualNetworkGateway2": {
                               "name": "ra-onprem-vpn-vgw",
-                              "resourceGroupName": "ra-onprem-sp2016-rg"
+                              "resourceGroupName": "ra-onprem-sp2019-rg"
                             }        
                         },
                         {
                             "name": "ra-onprem-vpn-cn",
                             "connectionType": "Vnet2Vnet",
                             "sharedKey": "123secret",
-                            "resourceGroupName": "ra-onprem-sp2016-rg",
+                            "resourceGroupName": "ra-onprem-sp2019-rg",
                             "routingWeight": 101,
                             "virtualNetworkGateway1": {
                               "name": "ra-onprem-vpn-vgw",
-                              "resourceGroupName": "ra-onprem-sp2016-rg"
+                              "resourceGroupName": "ra-onprem-sp2019-rg"
                             },
                             "virtualNetworkGateway2": {
                               "name": "ra-adds-vpn-vgw",
-                              "resourceGroupName": "ra-sp2016-network-rg"
+                              "resourceGroupName": "ra-sp2019-network-rg"
                             }                            
                         }
                     ]

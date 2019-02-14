@@ -96,7 +96,7 @@
                           "autoUpgradeMinorVersion": true,
                           "settings": {
                             "configuration": {
-                              "url": "https://github.com/mspnp/reference-architectures/raw/master/sharepoint/sharepoint-2016/adds.zip",
+                              "url": "https://github.com/fabnord/reference-architectures/raw/master/sharepoint/sharepoint-2019/adds.zip",
                               "script":"adds-forest-site.ps1",
                               "function": "CreateForest"
                             }
@@ -136,7 +136,7 @@
                           "typeHandlerVersion": "2.7",
                           "autoUpgradeMinorVersion": true,
                           "settings": {
-                            "url": "https://github.com/mspnp/reference-architectures/raw/master/sharepoint/sharepoint-2016/adds.zip",
+                            "url": "https://github.com/fabnord/reference-architectures/raw/master/sharepoint/sharepoint-2019/adds.zip",
                             "script":"adds.ps1",
                             "function": "CreateDomainController"
                           },
@@ -200,7 +200,7 @@
                               "autoUpgradeMinorVersion": true,
                               "settings": {
                                 "configuration": {
-                                  "url": "https://github.com/mspnp/reference-architectures/raw/master/sharepoint/sharepoint-2016/adds.zip",
+                                  "url": "https://github.com/fabnord/reference-architectures/raw/master/sharepoint/sharepoint-2019/adds.zip",
                                   "script": "join-domain.ps1",
                                   "function": "JoinDomain"
                                 }

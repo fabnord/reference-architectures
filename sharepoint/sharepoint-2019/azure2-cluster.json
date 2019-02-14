@@ -6,7 +6,7 @@
             "value": [
                 {
                   "type": "VirtualMachineExtension",
-                  "resourceGroupName": "ra-sp2016-network-rg",
+                  "resourceGroupName": "ra-sp2019-network-rg",
                   "settings":[
                       {
                           "vms": [ "ra-sp-sql-vm2" ],
@@ -19,7 +19,7 @@
                               "autoUpgradeMinorVersion": true,
                               "settings": {
                                 "configuration": {
-                                  "url": "https://github.com/mspnp/reference-architectures/raw/master/sharepoint/sharepoint-2016/CreateFailoverCluster.zip",
+                                  "url": "https://github.com/fabnord/reference-architectures/raw/master/sharepoint/sharepoint-2019/CreateFailoverCluster.zip",
                                   "script": "CreateFailoverCluster.ps1",
                                   "function": "CreateFailoverCluster"
                                 }
