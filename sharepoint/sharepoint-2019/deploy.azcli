@@ -1,0 +1,18 @@
+az group create --name ra-onprem-sp2019-rg --location westeurope
+az group create --name ra-sp2019-network-rg --location westeurope
+
+azbb -s <SubscriptionId> -g ra-onprem-sp2019-rg -l westeurope -p onprem.json --deploy
+
+azbb -s <SubscriptionId> -g ra-onprem-sp2019-rg -l westeurope -p connections.json --deploy
+
+azbb -s <SubscriptionId> -g ra-onprem-sp2019-rg -l westeurope -p azure1.json --deploy
+
+azbb -s <SubscriptionId> -g ra-onprem-sp2019-rg -l westeurope -p azure2-cluster.json --deploy
+
+azbb -s <SubscriptionId> -g ra-onprem-sp2019-rg -l westeurope -p azure3.json --deploy
+
+azbb -s <SubscriptionId> -g ra-onprem-sp2019-rg -l westeurope -p azure4-sharepoint-server.json --deploy
+
+azbb -s <SubscriptionId> -g ra-onprem-sp2019-rg -l westeurope -p azure5-sharepoint-farm.json --deploy
+
+azbb -s <SubscriptionId> -g ra-onprem-sp2019-rg -l westeurope -p azure6-security.json --deploy
