@@ -56,7 +56,7 @@
                             "name": "onprem-vnet"
                         }
                     }
-                },
+                },                
                 {
                   "type": "Connection",
                   "settings":[
@@ -75,7 +75,58 @@
                       "routingWeight": 100
                     }
                   ]
-                }
+                },
+                {
+                    "type": "NetworkSecurityGroup",
+                    "settings": [
+                      {
+                        "name": "onprem-mgmt-nsg",
+                        "virtualNetworks": [
+                            {
+                                "name": "onprem-vnet",
+                                "subnets": [
+                                "mgmt"
+                                ]
+                            }
+                        ],
+                        "securityRules": [
+                          {
+                            "name": "on-prem-rdp-allow",
+                            "direction": "Inbound",
+                            "priority": 100,
+                            "sourceAddressPrefix": "0.0.0.0/0",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": 3389,
+                            "access": "Allow",
+                            "protocol": "*"
+                          },
+                          {
+                            "name": "on-prem-ssh-allow",
+                            "direction": "Inbound",
+                            "priority": 200,
+                            "sourceAddressPrefix": "0.0.0.0/0",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": 22,
+                            "access": "Allow",
+                            "protocol": "*"
+                          },
+                          {
+                            "name": "vnet-deny",
+                            "direction": "Inbound",
+                            "priority": 500,
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "access": "Deny",
+                            "protocol": "*"
+                        }
+                    ]
+                  }            
+                ]
+              }
             ]
         }
     }

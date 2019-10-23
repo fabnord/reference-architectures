@@ -2,15 +2,16 @@ configuration SQLServerPrepareDsc
 {
     param
     (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory=$true)]
         [String]$DomainName,
 
+        [Parameter(Mandatory=$false)]
 		[String]$DomainNetbiosName=(Get-NetBIOSName -DomainName $DomainName),
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory=$true)]
         [System.Management.Automation.PSCredential]$Admincreds,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory=$true)]
         [System.Management.Automation.PSCredential]$SQLServiceCreds,
 
         [Parameter(Mandatory=$true)]
@@ -20,31 +21,31 @@ configuration SQLServerPrepareDsc
         [String]$ClusterOwnerNode,
 
         [Parameter(Mandatory=$true)]
-        [String]$ClusterIP,
+        [String]$ClusterIP=10.0.3.5,
 
         [Parameter(Mandatory=$true)]
-        [String]$witnessStorageBlobEndpoint,
+        [String]$witnessStorageAccount,
+
+        [Parameter(Mandatory=$false)]
+        [String]$witnessEndpoint="core.windows.net",
 
         [Parameter(Mandatory=$true)]
         [String]$witnessStorageAccountKey,
 
+        [Parameter(Mandatory=$false)]
         [Int]$RetryCount=20,
+
+        [Parameter(Mandatory=$false)]
         [Int]$RetryIntervalSec=30
     )
 
-    Import-DscResource -ModuleName PSDesiredStateConfiguration, xSmbShare, xComputerManagement, xNetworking, xActiveDirectory, xFailoverCluster, SqlServer, SqlServerDsc
+    Import-DscResource -ModuleName PSDesiredStateConfiguration, StorageDsc, xSmbShare, xComputerManagement, xNetworking, xActiveDirectory, xFailoverCluster, SqlServer, SqlServerDsc
     [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainNetbiosName}\$($Admincreds.UserName)", $Admincreds.Password)
 
     $ipcomponents = $ClusterIP.Split('.')
     $ipcomponents[3] = [convert]::ToString(([convert]::ToInt32($ipcomponents[3])) + 1)
     $ipdummy = $ipcomponents -join "."
     $ClusterNameDummy = "c" + $ClusterName
-
-    $suri = [System.uri]$witnessStorageBlobEndpoint
-    $uricomp = $suri.Host.split('.')
-
-    $witnessStorageAccount = $uriComp[0]
-    $witnessEndpoint = $uricomp[-3] + "." + $uricomp[-2] + "." + $uricomp[-1]
 
     $computerName = $env:COMPUTERNAME
     $domainUserName = $DomainCreds.UserName.ToString()
@@ -53,6 +54,22 @@ configuration SQLServerPrepareDsc
 
     Node localhost
     {
+        WaitforDisk Disk2
+        {
+            DiskId = 2
+            RetryIntervalSec = 60
+            RetryCount = 20
+        }
+
+        Disk FDisk
+        {
+            DiskId = 2
+            DriveLetter = 'F'
+            FSLabel = 'Data'
+            FSFormat = 'NTFS'
+            DependsOn = '[WaitForDisk]Disk2'
+        }
+
         xFirewall DatabaseEngineFirewallRule
         {
             Direction = "Inbound"
@@ -393,6 +410,92 @@ configuration SQLServerPrepareDsc
 
         LocalConfigurationManager 
         {
+            ActionAfterReboot = 'ContinueConfiguration'
+            ConfigurationMode = 'ApplyOnly'
+            RebootNodeIfNeeded = $true
+        }
+    }
+}
+
+configuration SQLServerDBDsc
+{
+    param
+    (
+        [Parameter(Mandatory=$true)]
+        [String]$DomainName,
+
+        [Parameter(Mandatory=$false)]
+		[String]$DomainNetbiosName=(Get-NetBIOSName -DomainName $DomainName),
+
+        [Parameter(Mandatory=$true)]
+        [System.Management.Automation.PSCredential]$Admincreds,
+
+        [Parameter(Mandatory=$true)]
+        [String]$ClusterName,
+
+        [Parameter(Mandatory=$true)]
+        [String]$ClusterOwnerNode
+    )
+
+    Import-DscResource -ModuleName PSDesiredStateConfiguration, StorageDsc, xSmbShare, SqlServer, SqlServerDsc
+
+    [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainNetbiosName}\$($Admincreds.UserName)", $Admincreds.Password)
+
+    Node localhost
+    {
+        if ($ClusterOwnerNode -eq $env:COMPUTERNAME)
+        {
+            WaitForVolume FVolume
+            {
+                DriveLetter = 'F'
+            }
+
+            File BackupDirectory
+            {
+                Ensure = "Present" 
+                Type = "Directory" 
+                DestinationPath = "F:\Backup"
+                DependsOn = '[WaitForVolume]FVolume'
+            }
+
+            xSMBShare DBBackupShare
+            {
+                Name = "DBBackup"
+                Path = "F:\Backup"
+                Ensure = "Present"
+                FullAccess = $DomainCreds.UserName
+                Description = "Backup share for SQL Server"
+                DependsOn = "[File]BackupDirectory"
+            }
+
+            SqlDatabase Create_Database
+            {
+                Ensure       = 'Present'
+                ServerName   = $env:COMPUTERNAME
+                InstanceName = 'MSSQLSERVER'
+                Name         = 'Ha-Sample'
+                PsDscRunAsCredential    = $DomainCreds
+                DependsOn               = "[xSMBShare]DBBackupShare"
+            }
+            
+            SqlAGDatabase AddDatabaseToAG
+            {
+                AvailabilityGroupName   = $ClusterName
+                BackupPath              = "\\" + $env:COMPUTERNAME + "\DBBackup"
+                DatabaseName            = 'Ha-Sample'
+                InstanceName            = 'MSSQLSERVER'
+                ServerName              = $env:COMPUTERNAME
+                Ensure                  = 'Present'
+                ProcessOnlyOnActiveNode = $true
+                PsDscRunAsCredential    = $DomainCreds
+                DependsOn = "[SqlDatabase]Create_Database"
+            }
+        }
+
+        LocalConfigurationManager 
+        {
+            ActionAfterReboot = 'ContinueConfiguration'
+            ConfigurationMode = 'ApplyOnly'
             RebootNodeIfNeeded = $true
         }
     }

@@ -15,160 +15,417 @@
                             "subnets": [
                                 {
                                     "name": "web",
-                                    "addressPrefix": "10.0.1.0/24"
+                                    "addressPrefix": "10.0.1.0/24",
+                                    "serviceEndpoints": [
+                                        {
+                                            "service": "Microsoft.KeyVault"
+                                        }
+                                    ]
                                 },
                                 {
                                     "name": "biz",
-                                    "addressPrefix": "10.0.2.0/24"
+                                    "addressPrefix": "10.0.2.0/24",
+                                    "serviceEndpoints": [
+                                        {
+                                            "service": "Microsoft.KeyVault"
+                                        }
+                                    ]
                                 },
                                 {
                                     "name": "data",
-                                    "addressPrefix": "10.0.3.0/24"
+                                    "addressPrefix": "10.0.3.0/24",
+                                    "serviceEndpoints": [
+                                        {
+                                            "service": "Microsoft.KeyVault"
+                                        }
+                                    ]
                                 },
                                 {
                                     "name": "mgmt",
-                                    "addressPrefix": "10.0.0.128/25"
+                                    "addressPrefix": "10.0.0.128/25",
+                                    "serviceEndpoints": [
+                                        {
+                                            "service": "Microsoft.KeyVault"
+                                        }
+                                    ]
                                 },
                                 {
                                     "name": "appgateway",
-                                    "addressPrefix": "10.0.4.0/25"
+                                    "addressPrefix": "10.0.4.0/25",
+                                    "serviceEndpoints": [
+                                        {
+                                            "service": "Microsoft.KeyVault"
+                                        }
+                                    ]
                                 }
-                            ],
-                            "dnsServers": []
+                            ]
                         }
                     ]
                 },
                 {
-                    "type": "VirtualMachine",
+                    "type": "Template",
                     "settings": {
-                        "vmCount": 3,
-                        "namePrefix": "web",
-                        "computerNamePrefix": "web",
-                        "adminUsername": "testadminuser",
-                        "adminPassword": "test$!Passw0rd111",
-                        "virtualNetwork": {
-                            "name": "ra-ntier-vnet"
-                        },
-                        "nics": [
-                            {
-                                "isPrimary": true,
-                                "isPublic": false,
-                                "privateIPAllocationMethod": "Static",
-                                "startingIPAddress": "10.0.1.5",
-                                "subnetName": "web"
-                            }
-                        ],
-                        "osType": "linux",
-                        "extensions": [
-                            {
-                                "name": "apache-config-ext",
-                                "publisher": "Microsoft.Azure.Extensions",
-                                "type": "CustomScript",
-                                "typeHandlerVersion": "2.0",
-                                "autoUpgradeMinorVersion": true,
-                                "settings": {
-                                    "fileUris": [
-                                        "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/linux/install-apache.sh"
-                                    ],
-                                    "commandToExecute": "sh install-apache.sh"
-                                },
-                                "protectedSettings": {}
-                            }
-                        ],
-                        "applicationGatewaySettings": {
-                            "name": "webAppGateway",
-                            "sku": {
-                                "size": "Medium",
-                                "capacity": 2,
-                                "tier": "WAF"
-                            },
-                            "gatewayIPConfigurations": [
+                        "template": {
+                            "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                            "contentVersion": "1.0.0.0",
+                            "parameters": {},
+                            "variables": {},
+                            "resources": [
                                 {
-                                    "name": "webIPConfig",
-                                    "subnetName": "appgateway"
-                                }
-                            ],
-                            "frontendIPConfigurations": [
-                                {
-                                    "name": "webFrontEndIPConfig1",
-                                    "applicationGatewayType": "Public"
-                                }
-                            ],
-                            "frontendPorts": [
-                                {
-                                    "name": "webFrontEndPort1",
-                                    "port": 80
-                                }
-                            ],
-                            "backendAddressPools": [
-                                {
-                                    "name": "webBackendAddressPool",
-                                    "backendAddresses": [
+                                    "type": "Microsoft.Network/privateDnsZones",
+                                    "apiVersion": "2018-09-01",
+                                    "name": "private.contoso.com",
+                                    "location": "global",
+                                    "dependsOn": [],
+                                    "properties": {},
+                                    "resources": [
                                         {
-                                            "ipAddress": "10.0.1.5"
-                                        },
-                                        {
-                                            "ipAddress": "10.0.1.6"
-                                        },
-                                        {
-                                            "ipAddress": "10.0.1.7"
+                                            "type": "virtualNetworkLinks",
+                                            "apiVersion": "2018-09-01",
+                                            "name": "mydnslink",
+                                            "location": "global",
+                                            "dependsOn": [
+                                                "[resourceId('Microsoft.Network/privateDnsZones', 'private.contoso.com')]"
+                                            ],
+                                            "properties": {
+                                                "registrationEnabled": false,
+                                                "virtualNetwork": {
+                                                    "id": "[resourceId('Microsoft.Network/virtualNetworks', 'ra-ntier-vnet')]"
+                                                }
+                                            }
                                         }
                                     ]
+                                },
+                                {
+                                    "type": "Microsoft.Network/privateDnsZones/A",
+                                    "apiVersion": "2018-09-01",
+                                    "name": "[concat('private.contoso.com/data', copyIndex(1))]",
+                                    "dependsOn": [
+                                        "[resourceId('Microsoft.Network/privateDnsZones', 'private.contoso.com')]"
+                                    ],
+                                    "copy": {
+                                        "count": 6,
+                                        "name": "dataARecords",
+                                        "mode": "Parallel"
+                                    },
+                                    "properties": {
+                                        "ttl": 10,
+                                        "aRecords": [
+                                            {
+                                                "ipv4Address": "[concat('10.0.3.', copyIndex(4))]"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "type": "Microsoft.Network/privateDnsZones/A",
+                                    "apiVersion": "2018-09-01",
+                                    "name": "private.contoso.com/ops1",
+                                    "dependsOn": [
+                                        "[resourceId('Microsoft.Network/privateDnsZones', 'private.contoso.com')]"
+                                    ],
+                                    "properties": {
+                                        "ttl": 10,
+                                        "aRecords": [
+                                            {
+                                                "ipv4Address": "10.0.0.132"
+                                            }
+                                        ]
+                                    }
                                 }
                             ],
-                            "backendHttpSettingsCollection": [
-                                {
-                                    "name": "webBackendHttpSetting1",
-                                    "port": 80,
-                                    "protocol": "Http",
-                                    "cookieBasedAffinity": "Disabled"
-                                }
-                            ],
-                            "httpListeners": [
-                                {
-                                    "name": "webHttpListener1",
-                                    "frontendIPConfigurationName": "webFrontEndIPConfig1",
-                                    "frontendPortName": "webFrontEndPort1",
-                                    "protocol": "Http"
-                                }
-                            ],
-                            "requestRoutingRules": [
-                                {
-                                    "name": "webRule1",
-                                    "ruleType": "Basic",
-                                    "httpListenerName": "webHttpListener1",
-                                    "backendAddressPoolName": "webBackendAddressPool",
-                                    "backendHttpSettingsName": "webBackendHttpSetting1"
-                                }
-                            ]
+                            "outputs": {}
                         }
                     }
                 },
                 {
                     "type": "VirtualMachine",
-                    "settings": {
-                        "vmCount": 3,
-                        "namePrefix": "biz",
-                        "size": "Standard_DS1_v2",
-                        "computerNamePrefix": "biz",
-                        "adminUsername": "testadminuser",
-                        "adminPassword": "test$!Passw0rd111",
-                        "virtualNetwork": {
-                            "name": "ra-ntier-vnet"
+                    "settings": [
+                        {
+                            "vmCount": 1,
+                            "namePrefix": "jb",
+                            "size": "Standard_DS2_v2",
+                            "adminUsername": "testadminuser",
+                            "adminPassword": "Awesome@PW",
+                            "virtualNetwork": {
+                                "name": "ra-ntier-vnet"
+                            },
+                            "nics": [
+                                {
+                                    "privateIPAllocationMethod": "Dynamic",
+                                    "subnetName": "mgmt",
+                                    "publicIpAddress": {
+                                        "sku": "Basic",
+                                        "publicIPAllocationMethod": "Static"
+                                    }
+                                }
+                            ],
+                            "osType": "linux",
+                            "imageReference": {
+                                "offer": "UbuntuServer",
+                                "publisher": "Canonical",
+                                "sku": "18.04-LTS",
+                                "version": "latest"
+                            }
                         },
-                        "nics": [
-                            {
-                                "isPrimary": true,
-                                "isPublic": false,
-                                "privateIPAllocationMethod": "Dynamic",
-                                "subnetName": "biz",
-                                "backendPoolNames": [
-                                    "lb-bep1"
+                        {
+                            "vmCount": 3,
+                            "namePrefix": "web",
+                            "computerNamePrefix": "web",
+                            "adminUsername": "testadminuser",
+                            "adminPassword": "Awesome@PW",
+                            "virtualNetwork": {
+                                "name": "ra-ntier-vnet"
+                            },
+                            "nics": [
+                                {
+                                    "isPrimary": true,
+                                    "isPublic": false,
+                                    "privateIPAllocationMethod": "Static",
+                                    "startingIPAddress": "10.0.1.5",
+                                    "subnetName": "web"
+                                }
+                            ],
+                            "osType": "linux",
+                            "imageReference": {
+                                "offer": "UbuntuServer",
+                                "publisher": "Canonical",
+                                "sku": "18.04-LTS",
+                                "version": "latest"
+                            },
+                            "applicationGatewaySettings": {
+                                "name": "webAppGateway",
+                                "sku": {
+                                    "tier": "WAF_v2"
+                                },
+                                "gatewayIPConfigurations": [
+                                    {
+                                        "name": "webIPConfig",
+                                        "subnetName": "appgateway"
+                                    }
+                                ],
+                                "frontendIPConfigurations": [
+                                    {
+                                        "name": "webFrontEndIPConfig1",
+                                        "applicationGatewayType": "Public"
+                                    }
+                                ],
+                                "frontendPorts": [
+                                    {
+                                        "name": "webFrontEndPort1",
+                                        "port": 80
+                                    }
+                                ],
+                                "backendAddressPools": [
+                                    {
+                                        "name": "webBackendAddressPool",
+                                        "backendAddresses": [
+                                            {
+                                                "ipAddress": "10.0.1.5"
+                                            },
+                                            {
+                                                "ipAddress": "10.0.1.6"
+                                            },
+                                            {
+                                                "ipAddress": "10.0.1.7"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "backendHttpSettingsCollection": [
+                                    {
+                                        "name": "webBackendHttpSetting1",
+                                        "port": 80,
+                                        "protocol": "Http",
+                                        "cookieBasedAffinity": "Disabled"
+                                    }
+                                ],
+                                "httpListeners": [
+                                    {
+                                        "name": "webHttpListener1",
+                                        "frontendIPConfigurationName": "webFrontEndIPConfig1",
+                                        "frontendPortName": "webFrontEndPort1",
+                                        "protocol": "Http"
+                                    }
+                                ],
+                                "requestRoutingRules": [
+                                    {
+                                        "name": "webRule1",
+                                        "ruleType": "Basic",
+                                        "httpListenerName": "webHttpListener1",
+                                        "backendAddressPoolName": "webBackendAddressPool",
+                                        "backendHttpSettingsName": "webBackendHttpSetting1"
+                                    }
                                 ]
                             }
-                        ],
-                        "osType": "linux",
-                        "loadBalancerSettings": {
+                        },
+                        {
+                            "vmCount": 3,
+                            "namePrefix": "biz",
+                            "size": "Standard_DS1_v2",
+                            "computerNamePrefix": "biz",
+                            "adminUsername": "testadminuser",
+                            "adminPassword": "Awesome@PW",
+                            "virtualNetwork": {
+                                "name": "ra-ntier-vnet"
+                            },
+                            "nics": [
+                                {
+                                    "isPrimary": true,
+                                    "isPublic": false,
+                                    "subnetName": "biz"
+                                }
+                            ],
+                            "osType": "linux",
+                            "imageReference": {
+                                "offer": "UbuntuServer",
+                                "publisher": "Canonical",
+                                "sku": "18.04-LTS",
+                                "version": "latest"
+                            }
+                        },
+                        {
+                            "vmCount": 6,
+                            "namePrefix": "data",
+                            "size": "Standard_DS1_v2",
+                            "computerNamePrefix": "data",
+                            "adminUsername": "testadminuser",
+                            "adminPassword": "Awesome@PW",
+                            "virtualNetwork": {
+                                "name": "ra-ntier-vnet"
+                            },
+                            "nics": [
+                                {
+                                    "isPublic": false,
+                                    "isPrimary": true,
+                                    "subnetName": "data",
+                                    "privateIPAllocationMethod": "Static",
+                                    "startingIPAddress": "10.0.3.4"
+                                }
+                            ],
+                            "osType": "linux",
+                            "imageReference": {
+                                "offer": "UbuntuServer",
+                                "publisher": "Canonical",
+                                "sku": "18.04-LTS",
+                                "version": "latest"
+                            }
+                        },
+                        {
+                            "vmCount": 1,
+                            "namePrefix": "ops",
+                            "computerNamePrefix": "ops",
+                            "size": "Standard_DS1_v2",
+                            "adminUsername": "testadminuser",
+                            "adminPassword": "Awesome@PW",
+                            "virtualNetwork": {
+                                "name": "ra-ntier-vnet"
+                            },
+                            "nics": [
+                                {
+                                    "isPublic": false,
+                                    "isPrimary": true,
+                                    "subnetName": "mgmt",
+                                    "privateIPAllocationMethod": "Static",
+                                    "startingIPAddress": "10.0.0.132"
+                                }
+                            ],
+                            "osType": "linux",
+                            "imageReference": {
+                                "offer": "UbuntuServer",
+                                "publisher": "Canonical",
+                                "sku": "18.04-LTS",
+                                "version": "latest"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "VirtualMachineExtension",
+                    "settings": [
+                        {
+                            "vms": [
+                                "data-vm1",
+                                "data-vm2",
+                                "data-vm3",
+                                "data-vm4",
+                                "data-vm5",
+                                "data-vm6"
+                            ],
+                            "extensions": [
+                                {
+                                    "name": "install-cassandra",
+                                    "publisher": "Microsoft.Azure.Extensions",
+                                    "type": "CustomScript",
+                                    "typeHandlerVersion": "2.0",
+                                    "autoUpgradeMinorVersion": true,
+                                    "settings": {
+                                        "fileUris": [
+                                            "https://github.com/mspnp/reference-architectures/raw/master/virtual-machines/n-tier-linux/install-cassandra.sh"
+                                        ],
+                                        "commandToExecute": "[concat('bash install-cassandra.sh data1.private.contoso.com ops1.private.contoso.com ra-ntier-dc-', resourceGroup().location)]"
+                                    },
+                                    "protectedSettings": {}
+                                }
+                            ]
+                        },
+                        {
+                            "vms": [
+                                "web-vm1",
+                                "web-vm2",
+                                "web-vm3"
+                            ],
+                            "extensions": [
+                                {
+                                    "name": "apache-config-ext",
+                                    "publisher": "Microsoft.Azure.Extensions",
+                                    "type": "CustomScript",
+                                    "typeHandlerVersion": "2.0",
+                                    "autoUpgradeMinorVersion": true,
+                                    "settings": {
+                                        "fileUris": [],
+                                        "commandToExecute": "bash -c \"DEBIAN_FRONTEND=noninteractive apt-get -yq update && apt-get -yq install apache2 && apachectl restart\""
+                                    },
+                                    "protectedSettings": {}
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "VirtualMachineExtension",
+                    "settings": [
+                        {
+                            "vms": [
+                                "ops-vm1"
+                            ],
+                            "extensions": [
+                                {
+                                    "name": "install-opscenter",
+                                    "publisher": "Microsoft.Azure.Extensions",
+                                    "type": "CustomScript",
+                                    "typeHandlerVersion": "2.0",
+                                    "autoUpgradeMinorVersion": true,
+                                    "settings": {
+                                        "fileUris": [
+                                            "https://github.com/mspnp/reference-architectures/raw/master/virtual-machines/n-tier-linux/install-opscenter.sh"
+                                        ],
+                                        "commandToExecute": "bash install-opscenter.sh data1.private.contoso.com"
+                                    },
+                                    "protectedSettings": {}
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "LoadBalancer",
+                    "settings": [
+                        {
+                            "name": "biz-lb",
+                            "virtualNetwork": {
+                                "name": "ra-ntier-vnet"
+                            },
                             "frontendIPConfigurations": [
                                 {
                                     "name": "ra-ntier-biz-config1",
@@ -202,120 +459,16 @@
                             "backendPools": [
                                 {
                                     "name": "lb-bep1",
-                                    "nicIndex": 0
+                                    "nics": [
+                                        "biz-vm1-nic1",
+                                        "biz-vm2-nic1",
+                                        "biz-vm3-nic1"
+                                    ]
                                 }
                             ]
                         }
-                    }
-                },
-                {
-                    "type": "VirtualMachine",
-                    "settings": {
-                        "vmCount": 6,
-                        "namePrefix": "data",
-                        "size": "Standard_DS1_v2",
-                        "computerNamePrefix": "data",
-                        "adminUsername": "testadminuser",
-                        "adminPassword": "test$!Passw0rd111",
-                        "virtualNetwork": {
-                            "name": "ra-ntier-vnet"
-                        },
-                        "nics": [
-                            {
-                                "isPublic": true,
-                                "isPrimary": true,
-                                "subnetName": "data",
-                                "privateIPAllocationMethod": "Dynamic",
-                                "domainNameLabelPrefix": "rantierdatanode",
-                                "dnsServers": [ ]
-                            }
-                        ],
-                        "osType": "linux",
-                        "extensions": [
-                            {
-                                "name": "install-cassandra",
-                                "publisher": "Microsoft.Azure.Extensions",
-                                "type": "CustomScript",
-                                "typeHandlerVersion": "2.0",
-                                "autoUpgradeMinorVersion": true,
-                                "settings": {
-                                    "fileUris": [
-                                        "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/linux/install-cassandra.sh"
-                                    ],
-                                    "commandToExecute": "[concat('bash install-cassandra.sh rantierdatanode11 rantierops1 ra-ntier-dc-',resourceGroup().location,' ',resourceGroup().location)]"
-                                },
-                                "protectedSettings": {}
-                            }
-                        ]
-                    }
-                },
-                {
-                    "type": "VirtualMachine",
-                    "settings": {
-                        "vmCount": 1,
-                        "namePrefix": "ops",
-                        "computerNamePrefix": "ops",
-                        "size": "Standard_DS1_v2",
-                        "adminUsername": "testadminuser",
-                        "adminPassword": "test$!Passw0rd111",
-                        "virtualNetwork": {
-                            "name": "ra-ntier-vnet"
-                        },
-                        "nics": [
-                            {
-                                "isPublic": true,
-                                "isPrimary": true,
-                                "privateIPAllocationMethod": "Dynamic",
-                                "subnetName": "mgmt",
-                                "domainNameLabelPrefix": "rantierops",
-                                "dnsServers": [ ]
-                            }
-                        ],
-                        "osType": "linux",
-                        "extensions": [
-                            {
-                                "name": "install-opscenter",
-                                "publisher": "Microsoft.Azure.Extensions",
-                                "type": "CustomScript",
-                                "typeHandlerVersion": "2.0",
-                                "autoUpgradeMinorVersion": true,
-                                "settings": {
-                                    "fileUris": [
-                                        "https://raw.githubusercontent.com/mspnp/reference-architectures/master/scripts/linux/install-opscenter.sh"
-                                    ],
-                                    "commandToExecute": "[concat('sudo bash install-opscenter.sh rantierdatanode11 ', resourceGroup().location)]"
-                                },
-                                "protectedSettings": {}
-                            }
-                        ]
-                    }
-                },
-                {
-                    "type": "VirtualMachine",
-                    "settings": {
-                        "vmCount": 1,
-                        "namePrefix": "jb",
-                        "computerNamePrefix": "jb",
-                        "size": "Standard_DS1_v2",
-                        "adminUsername": "testadminuser",
-                        "adminPassword": "test$!Passw0rd111",
-                        "virtualNetwork": {
-                            "name": "ra-ntier-vnet"
-                        },
-                        "nics": [
-                            {
-                                "isPublic": true,
-                                "isPrimary": true,
-                                "privateIPAllocationMethod": "Dynamic",
-                                "publicIPAllocationMethod": "Dynamic",
-                                "subnetName": "mgmt",
-                                "name": "jb-vm1-nic1"
-                            }
-                        ],
-                        "osType": "linux"
-                    }
-                },
-                {
+                    ]
+                },{
                     "type": "NetworkSecurityGroup",
                     "settings": [
                         {
@@ -332,6 +485,17 @@
                                 {
                                     "name": "HTTP",
                                     "priority": 100
+                                },
+                                {
+                                    "name": "allow-app-gateway-v2",
+                                    "direction": "Inbound",
+                                    "priority": 110,
+                                    "sourceAddressPrefix": "*",
+                                    "destinationAddressPrefix": "*",
+                                    "sourcePortRange": "*",
+                                    "destinationPortRange": "65200-65535",
+                                    "access": "Allow",
+                                    "protocol": "*"
                                 }
                             ]
                         },

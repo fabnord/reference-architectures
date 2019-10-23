@@ -1,0 +1,291 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mspnp/template-building-blocks/master/schemas/buildingBlocks.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "buildingBlocks": {
+      "value": [
+        {
+          "type": "VirtualNetwork",
+          "settings": [
+            {
+              "name": "ra-hybrid-vpn-vnet",
+              "addressPrefixes": [
+                "10.0.0.0/16"
+              ],
+              "subnets": [
+                {
+                  "name": "GatewaySubnet",
+                  "addressPrefix": "10.0.255.224/27"
+                },
+                {
+                  "name": "mgmt",
+                  "addressPrefix": "10.0.0.128/25"
+                },
+                {
+                  "name": "web",
+                  "addressPrefix": "10.0.1.0/24"
+                }
+              ]
+            }
+          ]
+        },
+        
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 1,
+            "namePrefix": "ra-hybrid-vpn-mgmt",
+            "computerNamePrefix": "cn",
+            "size": "Standard_DS1_v2",
+            "adminUsername": "testuser",
+            "adminPassword": "<placeholder>",
+            "osType": "windows",
+            "virtualNetwork": {
+              "name": "ra-hybrid-vpn-vnet"
+            },
+            "nics": [
+              {
+                "isPublic": false,
+                "subnetName": "mgmt",
+                "privateIPAllocationMethod": "Dynamic",
+                "isPrimary": true,
+                "enableIPForwarding": false
+              }
+            ]
+          }
+        },
+
+        {
+          "type": "VirtualMachine",
+          "settings": {
+            "vmCount": 2,
+            "namePrefix": "ra-hybrid-vpn-web",
+            "computerNamePrefix": "cn",
+            "size": "Standard_DS1_v2",
+            "adminUsername": "testuser",
+            "adminPassword": "<placeholder>",
+            "osType": "windows",
+            "virtualNetwork": {
+              "name": "ra-hybrid-vpn-vnet"
+            },
+            "nics": [
+              {
+                "isPublic": false,
+                "subnetName": "web",
+                "privateIPAllocationMethod": "Dynamic",
+                "isPrimary": true,
+                "enableIPForwarding": false
+              }
+            ],
+            "imageReference": {
+              "publisher": "MicrosoftWindowsServer",
+              "offer": "WindowsServer",
+              "sku": "2012-R2-Datacenter",
+              "version": "latest"
+            },
+            "dataDisks": {
+              "count": 1
+            }
+          }
+        },
+        
+
+        {
+          "type": "VirtualMachineExtension",
+          "settings": [
+            {
+              "vms": [
+                "ra-hybrid-vpn-web-vm1",
+                "ra-hybrid-vpn-web-vm2"
+              ],
+              "extensions": [
+                {
+                  "name": "iis-config-ext",
+                  "publisher": "Microsoft.Powershell",
+                  "type": "DSC",
+                  "typeHandlerVersion": "2.7",
+                  "autoUpgradeMinorVersion": true,
+                  "settings": {
+                    "ModulesUrl": "https://github.com/mspnp/identity-reference-architectures/raw/master/azure-ad/extensions/iisaspnet.ps1.zip",
+                    "ConfigurationFunction": "iisaspnet.ps1\\iisaspnet"
+                  },
+                  "protectedSettings": {}
+                }
+              ]
+            }
+          ]
+        },
+
+
+        {
+          "type": "LoadBalancer",
+          "settings": [
+            {
+              "name": "ra-hybrid-vpn-web-lb",
+              "virtualNetwork": {
+                "name": "ra-hybrid-vpn-vnet"
+              },
+              "frontendIPConfigurations": [
+                {
+                  "name": "ra-hybrid-vpn-web-lb-fe-config1",
+                  "loadBalancerType": "Internal",
+                  "internalLoadBalancerSettings": {
+                    "privateIPAddress": "10.0.1.250",
+                    "subnetName": "web"
+                  }
+                }
+              ],
+              "loadBalancingRules": [
+                {
+                  "name": "web-lbr1",
+                  "frontendPort": 80,
+                  "backendPort": 80,
+                  "protocol": "Tcp",
+                  "backendPoolName": "web-lb-bep1",
+                  "frontendIPConfigurationName": "ra-hybrid-vpn-web-lb-fe-config1",
+                  "enableFloatingIP": false,
+                  "probeName": "web-lbp1"
+                }
+              ],
+              "probes": [
+                {
+                  "name": "web-lbp1",
+                  "port": 80,
+                  "protocol": "Http",
+                  "requestPath": "/"
+                }
+              ],
+              "backendPools": [
+                {
+                  "name": "web-lb-bep1",
+                  "nics": [
+                    "ra-hybrid-vpn-web-vm1-nic1",
+                    "ra-hybrid-vpn-web-vm2-nic1"
+                  ]
+                }
+              ],
+              "inboundNatRules": [ ]
+            }
+          ]
+        },
+
+        {
+          "type": "VirtualNetworkGateway",
+          "settings": [
+            {
+              "isPublic": true,
+              "name": "ra-hybrid-vpn-vgw",
+              "gatewayType": "Vpn",
+              "vpnType": "RouteBased",
+              "sku": "VpnGw1",
+              "virtualNetwork": {
+                "name": "ra-hybrid-vpn-vnet"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Connection",
+          "settings": [
+            {
+              "name": "ra-hybrid-vpn-cn",
+              "connectionType": "IPsec",
+              "sharedKey": "123secret",
+              "virtualNetworkGateway": {
+                "name": "ra-hybrid-vpn-vgw"
+              },
+              "localNetworkGateway": {
+                "name": "ra-hybrid-vpn-lgw",
+                "ipAddress": "40.50.60.70",
+                "addressPrefixes": [
+                  "192.168.0.0/16"
+                ]
+              },
+              "routingWeight": 100
+            }
+          ]
+        },
+
+        {
+          "type": "NetworkSecurityGroup",
+          "settings": [
+            {
+              "name": "ra-hybrid-vpn-mgmt-nsg",
+              "virtualNetworks": [
+                {
+                  "name": "ra-hybrid-vpn-vnet",
+                  "subnets": [
+                    "mgmt"
+                  ]
+                }
+              ],
+              "securityRules": [
+                {
+                  "name": "on-prem-rdp-allow",
+                  "description": "Allow RDP Subnet",
+                  "protocol": "TCP",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 3389,
+                  "sourceAddressPrefix": "192.168.0.0/16",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 100,
+                  "direction": "Inbound"
+                }
+              ]
+            },
+
+            {
+              "name": "ra-hybrid-vpn-web-nsg",
+              "virtualNetworks": [
+                {
+                  "name": "ra-hybrid-vpn-vnet",
+                  "subnets": [
+                    "web"
+                  ]
+                }
+              ],
+              "securityRules": [
+                {
+                  "name": "vnet-allow-http",
+                  "description": "Allow http traffic originating from vnet.",
+                  "protocol": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 80,
+                  "sourceAddressPrefix": "10.0.0.0/16",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 100,
+                  "direction": "Inbound"
+                },
+                {
+                  "name": "on-prem-allow-http",
+                  "direction": "Inbound",
+                  "priority": 200,
+                  "sourceAddressPrefix": "192.168.0.0/16",
+                  "sourcePortRange": "*",
+                  "destinationAddressPrefix": "*",
+                  "destinationPortRange": 80,
+                  "access": "Allow",
+                  "protocol": "TCP"
+                },
+                {
+                  "name": "mgmt-allow-rdp",
+                  "direction": "Inbound",
+                  "priority": 400,
+                  "sourceAddressPrefix": "10.0.0.128/25",
+                  "destinationAddressPrefix": "*",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": 3389,
+                  "access": "Allow",
+                  "protocol": "TCP"
+                }
+              ]
+            }
+
+          ]
+        }
+      ]
+    }
+  }
+}
